@@ -273,6 +273,35 @@ class DocumentationGeneratorTest extends TestCase
         $this->assertEquals(0, $stats['errors']);
     }
 
+    /** @test */
+    public function test_it_removes_stale_endpoints_on_regeneration()
+    {
+        $service = app(DocumentationService::class);
+
+        // Manually create a stale endpoint that doesn't exist in routes
+        ApiEndpoint::create([
+            'uri' => 'api/non-existent-route',
+            'methods' => ['GET'],
+            'controller' => 'NonExistentController',
+            'action' => 'index',
+        ]);
+
+        $initialCount = ApiEndpoint::count();
+        
+        // Generate documentation
+        $stats = $service->generateDocumentation();
+        
+        $finalCount = ApiEndpoint::count();
+
+        // Count should be correct and the stale one should be gone
+        $expectedCount = $this->getExpectedRouteCount();
+        $this->assertEquals($expectedCount, $finalCount);
+        $this->assertDatabaseMissing('api_endpoints', [
+            'uri' => 'api/non-existent-route'
+        ]);
+        $this->assertEquals(1, $stats['deleted']);
+    }
+
     /**
      * Helper to get expected route count based on common logic
      */

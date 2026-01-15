@@ -38,6 +38,7 @@ class DocumentationService
             'total' => 0,
             'created' => 0,
             'updated' => 0,
+            'deleted' => 0,
             'errors' => 0,
         ];
 
@@ -46,10 +47,12 @@ class DocumentationService
         try {
             $apiRoutes = $this->getApiRoutes();
             $stats['total'] = count($apiRoutes);
+            $processedIds = [];
 
             foreach ($apiRoutes as $route) {
                 try {
-                    $this->analyzeAndSaveEndpoint($route);
+                    $endpoint = $this->analyzeAndSaveEndpoint($route);
+                    $processedIds[] = $endpoint->id;
                     $stats['created']++;
                 } catch (\Exception $e) {
                     $stats['errors']++;
@@ -59,6 +62,9 @@ class DocumentationService
                     ]);
                 }
             }
+
+            // Cleanup stale endpoints
+            $stats['deleted'] = ApiEndpoint::whereNotIn('id', $processedIds)->delete();
 
             DB::commit();
         } catch (\Exception $e) {

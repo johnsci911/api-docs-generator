@@ -49,6 +49,7 @@ class GenerateDocumentation extends Command
                 [
                     ['Total Routes', $stats['total']],
                     ['Created/Updated', $stats['created']],
+                    ['Deleted (Stale)', $stats['deleted'] ?? 0],
                     ['Errors', $stats['errors']],
                 ]
             );
