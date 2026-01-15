@@ -103,122 +103,137 @@ const groupedEndpoints = computed(() => {
     <Head title="API Endpoints" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-6">
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-                <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ stats.total }}</div>
-                    <div class="text-sm text-gray-500 dark:text-zinc-400">Total</div>
+        <div class="flex flex-col min-w-0 flex-1 gap-8 p-6 lg:p-10">
+            <!-- Filters Area -->
+            <div class="space-y-6">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">API Reference</h1>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-zinc-400">Browse and test all available endpoints across the system.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="hidden md:flex -space-x-1.5 overflow-hidden">
+                            <Badge variant="outline" class="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3">{{ stats.total }} Endpoints</Badge>
+                        </div>
+                    </div>
                 </div>
-                <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10">
-                    <div class="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{{ stats.get }}</div>
-                    <div class="text-sm text-emerald-600 dark:text-emerald-400/70">GET</div>
-                </div>
-                <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-500/30 dark:bg-blue-500/10">
-                    <div class="text-2xl font-bold text-blue-700 dark:text-blue-400">{{ stats.post }}</div>
-                    <div class="text-sm text-blue-600 dark:text-blue-400/70">POST</div>
-                </div>
-                <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
-                    <div class="text-2xl font-bold text-amber-700 dark:text-amber-400">{{ stats.put }}</div>
-                    <div class="text-sm text-amber-600 dark:text-amber-400/70">PUT</div>
-                </div>
-                <div class="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-500/30 dark:bg-orange-500/10">
-                    <div class="text-2xl font-bold text-orange-700 dark:text-orange-400">{{ stats.patch }}</div>
-                    <div class="text-sm text-orange-600 dark:text-orange-400/70">PATCH</div>
-                </div>
-                <div class="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-                    <div class="text-2xl font-bold text-red-700 dark:text-red-400">{{ stats.delete }}</div>
-                    <div class="text-sm text-red-600 dark:text-red-400/70">DELETE</div>
+
+                <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 lg:flex-row lg:items-center lg:justify-between shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40">
+                    <div class="relative w-full lg:max-w-md">
+                        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
+                        <Input
+                            v-model="search"
+                            type="text"
+                            placeholder="Search by URI, description or action..."
+                            class="pl-10 h-10 rounded-lg border-gray-200 bg-gray-50/50 dark:border-zinc-800 dark:bg-zinc-950"
+                        />
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex items-center gap-2">
+                            <div class="relative min-w-[140px]">
+                                <select
+                                    v-model="selectedMethod"
+                                    @change="applyFilters"
+                                    class="h-10 w-full appearance-none rounded-lg border border-gray-200 bg-gray-50/50 pl-3 pr-10 text-sm font-medium transition-all focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+                                >
+                                    <option value="">Methods: All</option>
+                                    <option v-for="method in methods" :key="method" :value="method">{{ method }}</option>
+                                </select>
+                                <ChevronRight class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-gray-400" />
+                            </div>
+                            <div class="relative min-w-[140px]">
+                                <select
+                                    v-model="selectedGroup"
+                                    @change="applyFilters"
+                                    class="h-10 w-full appearance-none rounded-lg border border-gray-200 bg-gray-50/50 pl-3 pr-10 text-sm font-medium transition-all focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+                                >
+                                    <option value="">Groups: All</option>
+                                    <option v-for="group in groups" :key="group" :value="group">{{ group }}</option>
+                                </select>
+                                <ChevronRight class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-gray-400" />
+                            </div>
+                        </div>
+                        <Button v-if="hasActiveFilters" variant="ghost" size="sm" @click="clearFilters" class="h-10 rounded-lg text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white">
+                            Reset Filters
+                        </Button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Filters -->
-            <div class="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 lg:flex-row lg:items-center lg:justify-between shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50">
-                <div class="relative w-full lg:max-w-md">
-                    <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
-                    <Input
-                        v-model="search"
-                        type="text"
-                        placeholder="Search endpoints..."
-                        class="pl-10 h-9"
-                    />
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <div class="relative">
-                        <select
-                            v-model="selectedMethod"
-                            @change="applyFilters"
-                            class="h-9 w-full min-w-[130px] appearance-none rounded-md border border-gray-200 bg-white pl-3 pr-8 text-sm text-gray-900 transition-shadow focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
-                        >
-                            <option value="">All Methods</option>
-                            <option v-for="method in methods" :key="method" :value="method">{{ method }}</option>
-                        </select>
-                        <ChevronRight class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-gray-400" />
-                    </div>
-                    <div class="relative">
-                        <select
-                            v-model="selectedGroup"
-                            @change="applyFilters"
-                            class="h-9 w-full min-w-[130px] appearance-none rounded-md border border-gray-200 bg-white pl-3 pr-8 text-sm text-gray-900 transition-shadow focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
-                        >
-                            <option value="">All Groups</option>
-                            <option v-for="group in groups" :key="group" :value="group">{{ group }}</option>
-                        </select>
-                        <ChevronRight class="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-gray-400" />
-                    </div>
-                    <Button v-if="hasActiveFilters" variant="ghost" size="sm" @click="clearFilters" class="h-9 text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white">
-                        Clear
-                    </Button>
-                </div>
-            </div>
-
-            <!-- Endpoints List -->
-            <div class="flex-1 space-y-6">
+            <!-- Endpoints List grouped -->
+            <div class="flex-1 space-y-12 pb-20">
                 <template v-if="endpoints.length === 0">
-                    <div class="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white py-16 dark:border-zinc-800 dark:bg-zinc-900/50">
-                        <Filter class="mb-4 h-12 w-12 text-gray-400 dark:text-zinc-600" />
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">No endpoints found</h3>
-                        <p class="text-sm text-gray-500 dark:text-zinc-400">Try adjusting your search or filters</p>
+                    <div class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 py-24 dark:border-zinc-800 dark:bg-zinc-900/20">
+                        <div class="rounded-full bg-gray-100 p-4 dark:bg-zinc-800">
+                            <Filter class="h-8 w-8 text-gray-400 dark:text-zinc-600" />
+                        </div>
+                        <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-white">No endpoints found</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-zinc-400 text-center max-w-xs">We couldn't find any endpoints matching your current search or filters.</p>
+                        <Button @click="clearFilters" variant="outline" class="mt-6">Clear all filters</Button>
                     </div>
                 </template>
 
                 <template v-else>
-                    <div v-for="(groupEndpoints, groupName) in groupedEndpoints" :key="groupName" class="space-y-3">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ groupName }}</h2>
-                        <div class="space-y-2">
+                    <section 
+                        v-for="(groupEndpoints, groupName) in groupedEndpoints" 
+                        :key="groupName" 
+                        :id="`group-${groupName.toLowerCase().replace(/\s+/g, '-')}`"
+                        class="space-y-6 scroll-mt-20"
+                    >
+                        <div class="sticky top-16 z-10 -mx-4 flex items-center gap-4 bg-background/95 px-5 py-4 backdrop-blur-xs lg:top-[64px] lg:-mx-10 lg:px-11">
+                            <h2 class="text-xl font-bold tracking-tight text-gray-900 border-l-4 border-emerald-500 pl-4 dark:text-white">{{ groupName }}</h2>
+                            <div class="h-px flex-1 bg-linear-to-r from-gray-200 to-transparent dark:from-zinc-800"></div>
+                            <span class="text-xs font-medium text-gray-400 dark:text-zinc-500">{{ groupEndpoints.length }} Endpoints</span>
+                        </div>
+
+                        <div class="grid gap-3 lg:grid-cols-1">
                             <Link
                                 v-for="endpoint in groupEndpoints"
                                 :key="endpoint.id"
                                 :href="show.url(endpoint.id)"
-                                class="group flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-emerald-500/50"
+                                class="group relative flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5 dark:border-zinc-800/80 dark:bg-zinc-900/30 dark:hover:border-emerald-500/40 md:flex-row md:items-center"
                             >
-                                <div class="flex gap-1">
+                                <!-- Method Badges -->
+                                <div class="flex shrink-0 gap-1.5">
                                     <Badge
                                         v-for="method in endpoint.methods"
                                         :key="method"
-                                        :class="['border font-mono text-xs', methodColors[method] || 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-zinc-500/20 dark:text-zinc-400 dark:border-zinc-500/30']"
+                                        :class="['h-7 border-none px-2.5 font-mono text-[10px] font-bold tracking-wider ring-1 ring-inset', methodColors[method] || 'bg-gray-100 text-gray-600 ring-gray-300 dark:bg-zinc-500/20 dark:text-zinc-400 dark:ring-zinc-500/30']"
                                     >
                                         {{ method }}
                                     </Badge>
                                 </div>
+
+                                <!-- Endpoint Info -->
                                 <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2">
-                                        <code class="font-mono text-sm text-gray-900 dark:text-white">{{ endpoint.uri }}</code>
-                                        <Badge v-if="endpoint.is_deprecated" variant="outline" class="border-yellow-400 text-yellow-600 text-xs dark:border-yellow-500/50 dark:text-yellow-500">
+                                    <div class="flex items-center gap-3">
+                                        <code class="font-mono text-[15px] font-bold text-gray-900 dark:text-zinc-100 truncate">
+                                            {{ endpoint.uri }}
+                                        </code>
+                                        <Badge v-if="endpoint.is_deprecated" variant="outline" class="border-amber-400/50 bg-amber-400/5 text-amber-600 text-[10px] font-bold uppercase tracking-widest dark:border-amber-500/30 dark:text-amber-500">
                                             Deprecated
                                         </Badge>
                                     </div>
-                                    <p v-if="endpoint.description" class="mt-1 truncate text-sm text-gray-500 dark:text-zinc-400">
-                                        {{ endpoint.description }}
-                                    </p>
-                                    <p v-else class="mt-1 text-sm text-gray-400 dark:text-zinc-600">
-                                        {{ endpoint.controller }}@{{ endpoint.action }}
-                                    </p>
+                                    <div class="mt-1.5 flex items-center gap-4">
+                                        <p v-if="endpoint.description" class="truncate text-sm text-gray-500 dark:text-zinc-400">
+                                            {{ endpoint.description }}
+                                        </p>
+                                        <div class="flex items-center gap-1.5 text-[11px] font-mono text-gray-400 dark:text-zinc-600">
+                                            <span class="truncate">{{ endpoint.controller.split('\\').pop() }}@{{ endpoint.action }}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <ChevronRight class="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-emerald-500 dark:text-zinc-600 dark:group-hover:text-emerald-400" />
+
+                                <!-- Action -->
+                                <div class="flex items-center justify-end pl-4">
+                                    <div class="flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 p-1.5 px-3 text-xs font-semibold text-gray-500 transition-all group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:border-zinc-800 dark:bg-zinc-900 dark:group-hover:text-emerald-400">
+                                        <span>Explore</span>
+                                        <ChevronRight class="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                                    </div>
+                                </div>
                             </Link>
                         </div>
-                    </div>
+                    </section>
                 </template>
             </div>
         </div>

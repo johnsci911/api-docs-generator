@@ -86,7 +86,7 @@ const copyToClipboard = async (text: string) => {
             }
             document.body.removeChild(textArea);
         }
-        
+
         copied.value = true;
         setTimeout(() => {
             copied.value = false;
@@ -253,9 +253,9 @@ const computedCurl = computed(() => {
 
     const method = props.endpoint.methods[0];
     const fullUrl = `${window.location.origin}${url}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-    
+
     let curl = `curl -X ${method} "${fullUrl}"`;
-    
+
     Object.entries(headers).forEach(([key, val]) => {
         curl += ` \\\n  -H "${key}: ${val}"`;
     });
@@ -508,7 +508,7 @@ const computedCurl = computed(() => {
                                 @click="executeTest"
                                 :disabled="testLoading"
                                 size="sm"
-                                class="bg-emerald-600 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-500/30 active:scale-95 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+                                class="bg-emerald-600 font-medium text-black shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-500/30 active:scale-95 dark:bg-emerald-500 dark:hover:bg-emerald-400"
                             >
                                 <Send class="mr-2 h-4 w-4" />
                                 {{ testLoading ? 'Executing...' : 'Execute Request' }}
