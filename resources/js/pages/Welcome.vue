@@ -21,7 +21,7 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="REST API Documentation" />
+    <Head title="REST API Document Generator" />
 
     <div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 px-4 py-12">
         <!-- Animated background grid -->
@@ -50,8 +50,7 @@ Authorization: Bearer ...</code></pre>
                 <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 shadow-lg shadow-emerald-500/10 backdrop-blur-sm">
                     <Terminal class="h-8 w-8 text-emerald-400" />
                 </div>
-                <h1 class="mb-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">REST API Documentation</h1>
-                <p class="text-zinc-400">Sign in to access your API documentation</p>
+                <h1 class="mb-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">REST API <br> Document Generator</h1>
             </div>
 
             <!-- Navigation for authenticated users -->

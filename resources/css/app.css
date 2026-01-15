@@ -183,4 +183,22 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-muted-foreground/20 transition-colors hover:bg-muted-foreground/30;
+    }
+
+    .dark ::-webkit-scrollbar-thumb {
+        @apply bg-zinc-800 hover:bg-zinc-700;
+    }
 }

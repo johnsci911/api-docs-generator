@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { CheckCircle2, ChevronLeft, Info, Play, Send } from 'lucide-vue-next';
+import { Check, CheckCircle2, ChevronLeft, Copy, Info, Play, Send } from 'lucide-vue-next';
 import prism from 'prismjs';
 import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-bash';
 import 'prismjs/themes/prism-tomorrow.css';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,38 @@ const activeTab = ref('details');
 const testResponse = ref<any>(null);
 const testLoading = ref(false);
 const testPayload = ref<Record<string, any>>({});
+const copied = ref(false);
+
+const copyToClipboard = async (text: string) => {
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+        } else {
+            // Fallback for non-secure contexts
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Fallback copy failed: ', err);
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        copied.value = true;
+        setTimeout(() => {
+            copied.value = false;
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+    }
+};
 
 const switchToTesting = () => {
     activeTab.value = 'testing';
@@ -177,6 +210,69 @@ const executeTest = async () => {
         testLoading.value = false;
     }
 };
+
+const computedCurl = computed(() => {
+    let url = props.endpoint.uri;
+    if (!url.startsWith('/')) {
+        url = '/' + url;
+    }
+    const queryParams = new URLSearchParams();
+    const headers: Record<string, string> = {
+        'Accept': 'application/json',
+    };
+
+    const hasFiles = props.endpoint.parameters.some(p =>
+        (p.type === 'file' || p.type === 'image') && testPayload.value[p.name] instanceof File
+    );
+
+    const body: Record<string, any> = {};
+    const formDataParts: string[] = [];
+
+    props.endpoint.parameters.forEach(param => {
+        const value = testPayload.value[param.name];
+        if (value === undefined || value === null || value === '') return;
+
+        if (param.location === 'path') {
+            url = url.replace(`{${param.name}}`, String(value));
+        } else if (param.location === 'query') {
+            queryParams.append(param.name, String(value));
+        } else if (param.location === 'header') {
+            headers[param.name] = String(value);
+        } else if (param.location === 'body') {
+            if (hasFiles) {
+                if (value instanceof File) {
+                    formDataParts.push(`-F "${param.name}=@${value.name}"`);
+                } else {
+                    formDataParts.push(`-F "${param.name}=${value}"`);
+                }
+            } else {
+                body[param.name] = value;
+            }
+        }
+    });
+
+    const method = props.endpoint.methods[0];
+    const fullUrl = `${window.location.origin}${url}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    
+    let curl = `curl -X ${method} "${fullUrl}"`;
+    
+    Object.entries(headers).forEach(([key, val]) => {
+        curl += ` \\\n  -H "${key}: ${val}"`;
+    });
+
+    if (method !== 'GET' && method !== 'HEAD') {
+        if (hasFiles) {
+            formDataParts.forEach(part => {
+                curl += ` \\\n  ${part}`;
+            });
+        } else if (Object.keys(body).length > 0) {
+            curl += ` \\\n  -H "Content-Type: application/json"`;
+            curl += ` \\\n  -d '${JSON.stringify(body, null, 2)}'`;
+        }
+    }
+
+    return curl;
+});
 </script>
 
 <template>
@@ -356,9 +452,12 @@ const executeTest = async () => {
                 </div>
 
                 <!-- Testing Tab -->
-                <div v-if="activeTab === 'testing'" class="grid gap-6 lg:grid-cols-2">
+                <div v-if="activeTab === 'testing'" class="grid gap-8 lg:grid-cols-2">
                     <div class="space-y-6">
-                        <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Request Body</h3>
+                        <div class="flex items-center gap-2 px-1">
+                            <Send class="h-4 w-4 text-emerald-500" />
+                            <h3 class="text-sm font-semibold tracking-wide text-gray-900 dark:text-zinc-100">Request Configuration</h3>
+                        </div>
                         <div class="space-y-4">
                             <div v-for="param in endpoint.parameters" :key="param.id" class="space-y-4">
                                 <div class="space-y-1.5">
@@ -397,24 +496,58 @@ const executeTest = async () => {
                                 </div>
                             </div>
                         </div>
-                        <Button
-                            @click="executeTest"
-                            :disabled="testLoading"
-                            class="w-full bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500"
-                        >
-                            <Send class="mr-2 h-4 w-4" />
-                            {{ testLoading ? 'Executing...' : 'Execute Request' }}
-                        </Button>
                     </div>
 
-                    <div class="space-y-4">
-                        <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Response</h3>
-                        <div v-if="testResponse" class="relative group">
-                            <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono! text-xs text-emerald-400/90 leading-relaxed max-h-[500px] border border-zinc-800"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(testResponse, null, 2), prism.languages.json, 'json')"></code></pre>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between px-1">
+                            <div class="flex items-center gap-2">
+                                <Play class="h-4 w-4 text-emerald-500" />
+                                <h3 class="text-sm font-semibold tracking-wide text-gray-900 dark:text-zinc-100">Execution & Results</h3>
+                            </div>
+                            <Button
+                                @click="executeTest"
+                                :disabled="testLoading"
+                                size="sm"
+                                class="bg-emerald-600 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-500/30 active:scale-95 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+                            >
+                                <Send class="mr-2 h-4 w-4" />
+                                {{ testLoading ? 'Executing...' : 'Execute Request' }}
+                            </Button>
                         </div>
-                        <div v-else class="flex h-[300px] flex-col items-center justify-center px-8 text-center rounded-lg border border-dashed border-gray-300 text-gray-400 dark:border-zinc-700">
-                            <Play class="mb-4 h-12 w-12 opacity-20" />
-                            <p>Execute a request to see the response here.</p>
+
+                        <!-- Live cURL -->
+                        <div class="group/curl space-y-3">
+                            <div class="flex items-center justify-between px-1">
+                                <h4 class="text-xs font-bold tracking-wider text-gray-400 dark:text-zinc-500">Live cURL Command</h4>
+                                <button
+                                    @click="copyToClipboard(computedCurl)"
+                                    class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-gray-400 transition-all hover:bg-emerald-500/10 hover:text-emerald-500 dark:text-zinc-500 dark:hover:text-emerald-400"
+                                    title="Copy to clipboard"
+                                >
+                                    <template v-if="copied">
+                                        <Check class="h-3.5 w-3.5" />
+                                        <span>Copied!</span>
+                                    </template>
+                                    <template v-else>
+                                        <Copy class="h-3.5 w-3.5" />
+                                        <span>Copy</span>
+                                    </template>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <pre class="overflow-auto rounded-xl border border-gray-200 bg-zinc-950 p-5 font-mono! text-[13px] text-emerald-400/80 leading-relaxed max-h-[220px] shadow-inner dark:border-zinc-800"><code class="language-bash font-mono!" v-html="prism.highlight(computedCurl, prism.languages.bash || prism.languages.javascript, 'bash')"></code></pre>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <h4 class="px-1 text-xs font-bold tracking-wider text-gray-400 dark:text-zinc-500">Response Analysis</h4>
+                            <div v-if="testResponse" class="relative">
+                                <pre class="overflow-auto rounded-xl border border-gray-200 bg-zinc-950 p-5 font-mono! text-[13px] text-zinc-300 leading-relaxed max-h-[450px] shadow-2xl dark:border-zinc-800"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(testResponse, null, 2), prism.languages.json, 'json')"></code></pre>
+                            </div>
+                            <div v-else class="flex h-[240px] flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 text-center text-gray-400 transition-colors dark:border-zinc-800 dark:bg-zinc-900/40">
+                                <Play class="mb-4 h-12 w-12 opacity-10" />
+                                <p class="text-sm font-medium opacity-60">Ready to execute? Hit the button to see results.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
