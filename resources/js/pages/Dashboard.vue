@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Search, Filter, ChevronRight } from 'lucide-vue-next';
-import { ref, computed, watch } from 'vue';
+import { ChevronRight, Filter, Search } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 
+import { show } from '@/actions/App/Http/Controllers/DocumentationController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { show } from '@/actions/App/Http/Controllers/DocumentationController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';

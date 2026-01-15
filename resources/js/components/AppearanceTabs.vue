@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Coffee, LayoutGrid, Monitor, Moon, Sun, Waves } from 'lucide-vue-next';
+import { Coffee, LayoutGrid, Monitor, Moon, StickyNote, Sun } from 'lucide-vue-next';
+
 import { useAppearance } from '@/composables/useAppearance';
 
 const { appearance, palette, updateAppearance, updatePalette } = useAppearance();
@@ -13,7 +14,7 @@ const modes = [
 const palettes = [
     { value: 'standard', Icon: LayoutGrid, label: 'Standard' },
     { value: 'catppuccin', Icon: Coffee, label: 'Catppuccin' },
-    { value: 'kanagawa', Icon: Waves, label: 'Kanagawa' },
+    { value: 'paper', Icon: StickyNote, label: 'Paper' },
 ] as const;
 </script>
 

@@ -272,46 +272,46 @@
     --prism-bg: #181825;
 }
 
-.theme-kanagawa {
-    /* Kanagawa Lotus (Light) */
-    --background: #f2ecbc;
-    --foreground: #545464;
-    --card: #e9e2a7;
-    --card-foreground: #545464;
-    --popover: #f2ecbc;
-    --popover-foreground: #545464;
-    --primary: #e82424;
-    --primary-foreground: #f2ecbc;
-    --secondary: #d5cea3;
-    --secondary-foreground: #545464;
-    --muted: #e9e2a7;
-    --muted-foreground: #8a8980;
-    --accent: #d5cea3;
-    --accent-foreground: #545464;
+.theme-paper {
+    /* Paper (Kanagawa Paper Canvas - Light) */
+    --background: #ecece8;
+    --foreground: #3a515e;
+    --card: #e1e1de;
+    --card-foreground: #3a515e;
+    --popover: #ecece8;
+    --popover-foreground: #3a515e;
+    --primary: #577888;
+    --primary-foreground: #ecece8;
+    --secondary: #d1cfc5;
+    --secondary-foreground: #3a515e;
+    --muted: #e1e1de;
+    --muted-foreground: #73787d;
+    --accent: #d1cfc5;
+    --accent-foreground: #3a515e;
     --destructive: #c8405a;
-    --destructive-foreground: #f2ecbc;
-    --border: #d5cea3;
-    --input: #d5cea3;
-    --ring: #e82424;
-    --sidebar-background: #f2ecbc;
-    --sidebar-foreground: #545464;
-    --sidebar-accent: #e9e2a7;
-    --sidebar-accent-foreground: #545464;
-    --sidebar-border: #e9e2a7;
-    --sidebar: #f2ecbc;
+    --destructive-foreground: #ecece8;
+    --border: #cbc8bc;
+    --input: #cbc8bc;
+    --ring: #577888;
+    --sidebar-background: #ecece8;
+    --sidebar-foreground: #3a515e;
+    --sidebar-accent: #e1e1de;
+    --sidebar-accent-foreground: #3a515e;
+    --sidebar-border: #e1e1de;
+    --sidebar: #ecece8;
 
-    /* Prism Syntax - Lotus */
-    --prism-comment: #a6a69c;
-    --prism-keyword: #9c3131;
-    --prism-string: #4d691e;
-    --prism-function: #4d5561;
-    --prism-number: #784d1e;
-    --prism-operator: #5d4d61;
-    --prism-bg: #e9e2a7;
+    /* Prism Syntax - Paper */
+    --prism-comment: #8e8a80;
+    --prism-keyword: #577888;
+    --prism-string: #7a8c6a;
+    --prism-function: #6b8998;
+    --prism-number: #9e7e98;
+    --prism-operator: #73787d;
+    --prism-bg: #e1e1de;
 }
 
-.dark.theme-kanagawa {
-    /* Kanagawa Wave (Dark) */
+.dark.theme-paper {
+    /* Paper Dark (Kanagawa Wave - Dark) */
     --background: #1f1f28;
     --foreground: #dcd7ba;
     --card: #16161d;
@@ -338,7 +338,7 @@
     --sidebar-border: #16161d;
     --sidebar: #1f1f28;
 
-    /* Prism Syntax - Kanagawa Wave */
+    /* Prism Syntax - Paper Dark */
     --prism-comment: #727169;
     --prism-keyword: #957fb8;
     --prism-string: #98bb6c;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+
+import { Badge } from '@/components/ui/badge';
 import { 
     SidebarGroup, 
     SidebarGroupLabel, 
@@ -8,7 +10,6 @@ import {
     SidebarMenuButton, 
     SidebarMenuItem 
 } from '@/components/ui/sidebar';
-import { Badge } from '@/components/ui/badge';
 
 interface ApiEndpoint {
     id: number;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Coffee, Monitor, Moon, Sun, Waves } from 'lucide-vue-next';
+import { Coffee, Monitor, Moon, StickyNote, Sun } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,12 @@ const standardModes = [
 
 const customPalettes = [
     { value: 'catppuccin', Icon: Coffee, label: 'Catppuccin' },
-    { value: 'kanagawa', Icon: Waves, label: 'Kanagawa' },
+    { value: 'paper', Icon: StickyNote, label: 'Paper' },
 ] as const;
 
 const currentPalette = computed(() => {
     if (palette.value === 'catppuccin') return customPalettes[0];
-    if (palette.value === 'kanagawa') return customPalettes[1];
+    if (palette.value === 'paper') return customPalettes[1];
     return { value: 'standard', Icon: Moon, label: 'Standard' }; // Fallback icon
 });
 

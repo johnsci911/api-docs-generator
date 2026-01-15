@@ -66,26 +66,7 @@ const copied = ref(false);
 
 const copyToClipboard = async (text: string) => {
     try {
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(text);
-        } else {
-            // Fallback for non-secure contexts
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-999999px";
-            textArea.style.top = "-999999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-            } catch (err) {
-                console.error('Fallback copy failed: ', err);
-            }
-            document.body.removeChild(textArea);
-        }
-
+        await navigator.clipboard.writeText(text);
         copied.value = true;
         setTimeout(() => {
             copied.value = false;
@@ -109,14 +90,6 @@ props.endpoint.parameters.forEach(param => {
         testPayload.value[`${param.name}_confirmation`] = '';
     }
 });
-
-const methodColors: Record<string, string> = {
-    GET: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/30',
-    POST: 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30',
-    PUT: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/30',
-    PATCH: 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30',
-    DELETE: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30',
-};
 
 const displayParameters = computed(() => {
     return props.endpoint.parameters.filter(param => {

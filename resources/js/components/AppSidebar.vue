@@ -2,8 +2,8 @@
 import { Link } from '@inertiajs/vue3';
 import { FileCode2 } from 'lucide-vue-next';
 
-import NavMain from '@/components/NavMain.vue';
 import NavApiGroups from '@/components/NavApiGroups.vue';
+import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
     Sidebar,

@@ -1,12 +1,12 @@
 import { computed, ref, watch } from 'vue';
 
 export type AppearanceMode = 'light' | 'dark' | 'system';
-export type AppearancePalette = 'standard' | 'catppuccin' | 'kanagawa';
+export type AppearancePalette = 'standard' | 'catppuccin' | 'paper';
 
 // For internal resolved state
-export type ResolvedAppearance = 'light' | 'dark' | 'catppuccin' | 'kanagawa';
+export type ResolvedAppearance = 'light' | 'dark' | 'catppuccin' | 'paper';
 
-const PALETTES = ['catppuccin', 'kanagawa'] as const;
+const PALETTES = ['catppuccin', 'paper'] as const;
 
 export function updateTheme(mode: AppearanceMode, palette: AppearancePalette) {
     if (typeof window === 'undefined') {
@@ -51,9 +51,9 @@ const getStoredAppearance = (): AppearanceMode => {
 const getStoredPalette = (): AppearancePalette => {
     if (typeof window === 'undefined') return 'standard';
     const val = localStorage.getItem('palette');
-    // Fallback for removed themes (nord, tokyonight)
-    if (val === 'nord' || val === 'tokyonight') return 'standard';
-    return (val === 'standard' || val === 'catppuccin' || val === 'kanagawa') ? val : 'standard';
+    // Fallback for removed themes (nord, tokyonight, kanagawa)
+    if (val === 'nord' || val === 'tokyonight' || val === 'kanagawa') return 'standard';
+    return (val === 'standard' || val === 'catppuccin' || val === 'paper') ? val : 'standard';
 };
 
 const prefersDark = (): boolean => {
