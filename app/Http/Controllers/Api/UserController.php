@@ -181,7 +181,7 @@ class UserController extends Controller
      *
      * Retrieve detailed information about a specific user by their ID.
      *
-     * @urlParam id integer required The user's unique identifier. Example: 1
+     * @urlParam user integer required The user's unique identifier. Example: 1
      *
      * @response 200 {
      *   "data": {
@@ -203,9 +203,9 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function show(int $id): JsonResponse
+    public function show(string $user): JsonResponse
     {
-        if ($id > 3) {
+        if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
@@ -213,12 +213,12 @@ class UserController extends Controller
 
         return response()->json([
             'data' => [
-                'id' => $id,
+                'id' => (int) $user,
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
                 'role' => 'admin',
                 'bio' => 'Senior developer with 10 years experience',
-                'avatar' => 'https://api.example.com/storage/avatars/'.$id.'.jpg',
+                'avatar' => 'https://api.example.com/storage/avatars/'.$user.'.jpg',
                 'verified' => true,
                 'posts_count' => 42,
                 'comments_count' => 156,
@@ -234,7 +234,7 @@ class UserController extends Controller
      * Update an existing user's profile information.
      * All fields are optional - only provided fields will be updated.
      *
-     * @urlParam id integer required The user's unique identifier. Example: 1
+     * @urlParam user integer required The user's unique identifier. Example: 1
      *
      * @bodyParam name string The user's full name. Example: John Updated
      * @bodyParam email string The user's email address. Must be unique. Example: john.updated@example.com
@@ -259,9 +259,9 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function update(UpdateUserRequest $request, int $id): JsonResponse
+    public function update(UpdateUserRequest $request, int $user): JsonResponse
     {
-        if ($id > 3) {
+        if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
@@ -269,12 +269,12 @@ class UserController extends Controller
 
         return response()->json([
             'data' => [
-                'id' => $id,
+                'id' => (int) $user,
                 'name' => $request->input('name', 'John Doe'),
                 'email' => $request->input('email', 'john@example.com'),
                 'role' => $request->input('role', 'admin'),
                 'bio' => $request->input('bio', 'Updated bio'),
-                'avatar' => 'https://api.example.com/storage/avatars/'.$id.'.jpg',
+                'avatar' => 'https://api.example.com/storage/avatars/'.$user.'.jpg',
                 'verified' => true,
                 'created_at' => '2024-01-01T08:00:00Z',
                 'updated_at' => now()->toIso8601String(),
@@ -289,7 +289,7 @@ class UserController extends Controller
      * Permanently delete a user account and all associated data.
      * This action cannot be undone.
      *
-     * @urlParam id integer required The user's unique identifier. Example: 1
+     * @urlParam user integer required The user's unique identifier. Example: 1
      *
      * @response 200 {
      *   "message": "User deleted successfully"
@@ -298,9 +298,9 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(string $user): JsonResponse
     {
-        if ($id > 3) {
+        if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
@@ -317,7 +317,9 @@ class UserController extends Controller
      * Upload or replace the user's profile picture.
      * The previous avatar will be automatically deleted.
      *
-     * @urlParam id integer required The user's unique identifier. Example: 1
+     * @deprecated This endpoint is legacy. Use the centralized profile update endpoint instead.
+     *
+     * @urlParam user integer required The user's unique identifier. Example: 1
      *
      * @bodyParam avatar file required The avatar image file. Max 2MB. Allowed: jpg, jpeg, png, gif, webp.
      *
@@ -337,19 +339,19 @@ class UserController extends Controller
      *   }
      * }
      */
-    public function uploadAvatar(Request $request, int $id): JsonResponse
+    public function uploadAvatar(Request $request, string $user): JsonResponse
     {
         $request->validate([
             'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:2048'],
         ]);
 
-        if ($id > 3) {
+        if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
         }
 
-        $filename = $id.'_'.time().'.jpg';
+        $filename = $user.'_'.time().'.jpg';
 
         return response()->json([
             'data' => [
@@ -364,7 +366,9 @@ class UserController extends Controller
      *
      * Remove the user's current profile picture and reset to default.
      *
-     * @urlParam id integer required The user's unique identifier. Example: 1
+     * @deprecated This endpoint is legacy. Use the centralized profile update endpoint instead.
+     *
+     * @urlParam user integer required The user's unique identifier. Example: 1
      *
      * @response 200 {
      *   "message": "Avatar deleted successfully"
@@ -373,9 +377,9 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function deleteAvatar(int $id): JsonResponse
+    public function deleteAvatar(string $user): JsonResponse
     {
-        if ($id > 3) {
+        if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',
             ], 404);
