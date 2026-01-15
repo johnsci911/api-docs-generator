@@ -259,7 +259,7 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function update(UpdateUserRequest $request, int $user): JsonResponse
+    public function update(UpdateUserRequest $request, string $user): JsonResponse
     {
         if ($user > 3) {
             return response()->json([
