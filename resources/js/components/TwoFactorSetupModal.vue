@@ -29,7 +29,7 @@ interface Props {
     twoFactorEnabled: boolean;
 }
 
-const { resolvedAppearance } = useAppearance();
+const { isDark } = useAppearance();
 
 const props = defineProps<Props>();
 const isOpen = defineModel<boolean>('isOpen');
@@ -178,7 +178,7 @@ watch(
                                         class="flex aspect-square size-full items-center justify-center"
                                         :style="{
                                             filter:
-                                                resolvedAppearance === 'dark'
+                                                isDark
                                                     ? 'invert(1) brightness(1.5)'
                                                     : undefined,
                                         }"

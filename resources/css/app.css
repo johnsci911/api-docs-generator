@@ -138,45 +138,218 @@
     --sidebar-border: hsl(0 0% 91%);
     --sidebar-ring: hsl(217.2 91.2% 59.8%);
     --sidebar: hsl(0 0% 98%);
+
+    /* Prism Colors Light */
+    --prism-comment: #708090;
+    --prism-keyword: #07a;
+    --prism-string: #690;
+    --prism-function: #DD4A68;
+    --prism-number: #905;
+    --prism-operator: #9a6e3a;
+    --prism-bg: #f8f9fa;
 }
 
 .dark {
-    --background: hsl(0 0% 3.9%);
-    --foreground: hsl(0 0% 98%);
-    --card: hsl(0 0% 3.9%);
-    --card-foreground: hsl(0 0% 98%);
-    --popover: hsl(0 0% 3.9%);
-    --popover-foreground: hsl(0 0% 98%);
-    --primary: hsl(0 0% 98%);
-    --primary-foreground: hsl(0 0% 9%);
-    --secondary: hsl(0 0% 14.9%);
-    --secondary-foreground: hsl(0 0% 98%);
-    --muted: hsl(0 0% 16.08%);
-    --muted-foreground: hsl(0 0% 63.9%);
-    --accent: hsl(0 0% 14.9%);
-    --accent-foreground: hsl(0 0% 98%);
-    --destructive: hsl(0 84% 60%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 14.9%);
-    --input: hsl(0 0% 14.9%);
-    --ring: hsl(0 0% 83.1%);
+    --background: #121214;
+    --foreground: #d4d4d8;
+    --card: #18181b;
+    --card-foreground: #fafafa;
+    --popover: #121214;
+    --popover-foreground: #fafafa;
+    --primary: #ffffff;
+    --primary-foreground: #121214;
+    --secondary: #1e1e20;
+    --secondary-foreground: #fafafa;
+    --muted: #1a1a1c;
+    --muted-foreground: #71717a;
+    --accent: #1e1e20;
+    --accent-foreground: #fafafa;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
+    --border: #27272a;
+    --input: #27272a;
+    --ring: #3f3f46;
     --chart-1: hsl(220 70% 50%);
     --chart-2: hsl(160 60% 45%);
     --chart-3: hsl(30 80% 55%);
     --chart-4: hsl(280 65% 60%);
     --chart-5: hsl(340 75% 55%);
-    --sidebar-background: hsl(0 0% 7%);
-    --sidebar-foreground: hsl(0 0% 95.9%);
-    --sidebar-primary: hsl(360, 100%, 100%);
+    --sidebar-background: #121214;
+    --sidebar-foreground: #d4d4d8;
+    --sidebar-primary: hsl(0 0% 100%);
     --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(0 0% 15.9%);
-    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-border: hsl(0 0% 15.9%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(240 5.9% 10%);
+    --sidebar-accent: #1e1e20;
+    --sidebar-accent-foreground: #fafafa;
+    --sidebar-border: #1a1a1c;
+    --sidebar-ring: hsl(217 91% 60%);
+    --sidebar: #121214;
+
+    /* Prism Syntax - Clean Dark */
+    --prism-comment: #71717a;
+    --prism-keyword: #7dd3fc;
+    --prism-string: #bef264;
+    --prism-function: #60a5fa;
+    --prism-number: #fb923c;
+    --prism-operator: #ffffff;
+    --prism-bg: #000000;
+}
+
+
+
+.theme-catppuccin {
+    /* Catppuccin Latte (Light) */
+    --background: #eff1f5;
+    --foreground: #4c4f69;
+    --card: #e6e9ef;
+    --card-foreground: #4c4f69;
+    --popover: #eff1f5;
+    --popover-foreground: #4c4f69;
+    --primary: #8839ef;
+    --primary-foreground: #eff1f5;
+    --secondary: #ccd0da;
+    --secondary-foreground: #4c4f69;
+    --muted: #e6e9ef;
+    --muted-foreground: #7c7f93;
+    --accent: #ccd0da;
+    --accent-foreground: #4c4f69;
+    --destructive: #d20f39;
+    --destructive-foreground: #eff1f5;
+    --border: #ccd0da;
+    --input: #ccd0da;
+    --ring: #8839ef;
+    --sidebar-background: #eff1f5;
+    --sidebar-foreground: #4c4f69;
+    --sidebar-accent: #e6e9ef;
+    --sidebar-accent-foreground: #4c4f69;
+    --sidebar-border: #e6e9ef;
+    --sidebar: #eff1f5;
+
+    /* Prism Syntax - Latte */
+    --prism-comment: #9ca0b0;
+    --prism-keyword: #8839ef;
+    --prism-string: #40a02b;
+    --prism-function: #1e66f5;
+    --prism-number: #fe640b;
+    --prism-operator: #ea76cb;
+    --prism-bg: #e6e9ef;
+}
+
+.dark.theme-catppuccin {
+    /* Catppuccin Mocha (Dark) */
+    --background: #1e1e2e;
+    --foreground: #cdd6f4;
+    --card: #181825;
+    --card-foreground: #cdd6f4;
+    --popover: #1e1e2e;
+    --popover-foreground: #cdd6f4;
+    --primary: #cba6f7;
+    --primary-foreground: #1e1e2e;
+    --secondary: #313244;
+    --secondary-foreground: #cdd6f4;
+    --muted: #181825;
+    --muted-foreground: #6c7086;
+    --accent: #313244;
+    --accent-foreground: #cdd6f4;
+    --destructive: #f38ba8;
+    --destructive-foreground: #1e1e2e;
+    --border: #313244;
+    --input: #313244;
+    --ring: #cba6f7;
+    --sidebar-background: #1e1e2e;
+    --sidebar-foreground: #cdd6f4;
+    --sidebar-accent: #181825;
+    --sidebar-accent-foreground: #cdd6f4;
+    --sidebar-border: #181825;
+    --sidebar: #1e1e2e;
+
+    /* Prism Syntax - Catppuccin Mocha */
+    --prism-comment: #6c7086;
+    --prism-keyword: #cba6f7;
+    --prism-string: #a6e3a1;
+    --prism-function: #89b4fa;
+    --prism-number: #fab387;
+    --prism-operator: #94e2d5;
+    --prism-bg: #181825;
+}
+
+.theme-kanagawa {
+    /* Kanagawa Lotus (Light) */
+    --background: #f2ecbc;
+    --foreground: #545464;
+    --card: #e9e2a7;
+    --card-foreground: #545464;
+    --popover: #f2ecbc;
+    --popover-foreground: #545464;
+    --primary: #e82424;
+    --primary-foreground: #f2ecbc;
+    --secondary: #d5cea3;
+    --secondary-foreground: #545464;
+    --muted: #e9e2a7;
+    --muted-foreground: #8a8980;
+    --accent: #d5cea3;
+    --accent-foreground: #545464;
+    --destructive: #c8405a;
+    --destructive-foreground: #f2ecbc;
+    --border: #d5cea3;
+    --input: #d5cea3;
+    --ring: #e82424;
+    --sidebar-background: #f2ecbc;
+    --sidebar-foreground: #545464;
+    --sidebar-accent: #e9e2a7;
+    --sidebar-accent-foreground: #545464;
+    --sidebar-border: #e9e2a7;
+    --sidebar: #f2ecbc;
+
+    /* Prism Syntax - Lotus */
+    --prism-comment: #a6a69c;
+    --prism-keyword: #9c3131;
+    --prism-string: #4d691e;
+    --prism-function: #4d5561;
+    --prism-number: #784d1e;
+    --prism-operator: #5d4d61;
+    --prism-bg: #e9e2a7;
+}
+
+.dark.theme-kanagawa {
+    /* Kanagawa Wave (Dark) */
+    --background: #1f1f28;
+    --foreground: #dcd7ba;
+    --card: #16161d;
+    --card-foreground: #dcd7ba;
+    --popover: #1f1f28;
+    --popover-foreground: #dcd7ba;
+    --primary: #957fb8;
+    --primary-foreground: #1f1f28;
+    --secondary: #2a2a37;
+    --secondary-foreground: #dcd7ba;
+    --muted: #16161d;
+    --muted-foreground: #727169;
+    --accent: #2a2a37;
+    --accent-foreground: #dcd7ba;
+    --destructive: #c34043;
+    --destructive-foreground: #dcd7ba;
+    --border: #2a2a37;
+    --input: #2a2a37;
+    --ring: #957fb8;
+    --sidebar-background: #1f1f28;
+    --sidebar-foreground: #dcd7ba;
+    --sidebar-accent: #16161d;
+    --sidebar-accent-foreground: #dcd7ba;
+    --sidebar-border: #16161d;
+    --sidebar: #1f1f28;
+
+    /* Prism Syntax - Kanagawa Wave */
+    --prism-comment: #727169;
+    --prism-keyword: #957fb8;
+    --prism-string: #98bb6c;
+    --prism-function: #7e9cd8;
+    --prism-number: #ffa066;
+    --prism-operator: #c0a36e;
+    --prism-bg: #16161d;
 }
 
 @layer base {
+    /* Existing base styles... */
     * {
         @apply border-border outline-ring/50;
     }
@@ -201,4 +374,131 @@
     .dark ::-webkit-scrollbar-thumb {
         @apply bg-zinc-800 hover:bg-zinc-700;
     }
+}
+
+@layer components {
+    /* Global UI Contrast Components */
+    .docs-label {
+        @apply flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/80;
+    }
+
+    .docs-label::before {
+        content: "";
+        @apply h-3.5 w-1 rounded-full bg-primary/40;
+    }
+
+    .docs-card {
+        @apply rounded-xl border border-border/60 bg-muted/40 shadow-sm transition-all hover:bg-muted/50 hover:border-border/80;
+    }
+
+    .docs-field {
+        @apply h-10 w-full rounded-lg border border-input bg-background/50 px-3 py-1.5 text-sm shadow-sm transition-all placeholder:text-muted-foreground/40 focus:bg-background focus:border-primary/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+    }
+
+    .docs-table-wrapper {
+        @apply rounded-xl border border-border/50 bg-muted/20 overflow-hidden shadow-sm;
+    }
+
+    /* Enhanced Badge Calibration */
+    .badge-method {
+        @apply font-bold tracking-widest uppercase text-[10px] px-2 py-0.5 rounded shadow-sm transition-opacity border;
+    }
+
+    .badge-method-get {
+        @apply bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-500/20;
+    }
+
+    .badge-method-post {
+        @apply bg-blue-500/10 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 border-blue-500/20;
+    }
+
+    .badge-method-put, .badge-method-patch {
+        @apply bg-amber-500/10 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border-amber-500/20;
+    }
+
+    .badge-method-delete {
+        @apply bg-red-500/10 text-red-600 dark:bg-red-500/10 dark:text-red-400 border-red-500/20;
+    }
+
+    .badge-required {
+        @apply bg-red-500/10 text-red-600 dark:bg-red-500/15 dark:text-red-400 border border-red-500/20 font-bold uppercase text-[9px] px-1.5 py-0.5 rounded;
+    }
+
+    .badge-optional {
+        @apply bg-zinc-500/10 text-zinc-600 dark:bg-zinc-500/15 dark:text-zinc-400 border border-zinc-500/20 font-bold uppercase text-[9px] px-1.5 py-0.5 rounded;
+    }
+}
+
+/* PrismJS Overrides */
+pre[class*="language-"],
+code[class*="language-"] {
+    color: var(--foreground) !important;
+    background: transparent !important;
+    text-shadow: none !important;
+    font-family: var(--font-mono) !important;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: var(--prism-comment) !important;
+    font-style: italic;
+}
+
+.token.punctuation {
+    color: var(--foreground) !important;
+    opacity: 0.7;
+}
+
+.token.namespace {
+    opacity: 0.7;
+}
+
+.token.property {
+    color: var(--prism-keyword) !important;
+    font-weight: 500;
+}
+
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: var(--prism-number) !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: var(--prism-string) !important;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: var(--prism-operator) !important;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: var(--prism-keyword) !important;
+}
+
+.token.function,
+.token.class-name {
+    color: var(--prism-function) !important;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: var(--prism-operator) !important;
 }

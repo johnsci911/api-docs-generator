@@ -1,117 +1,117 @@
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
-export type ResolvedAppearance = 'light' | 'dark';
-type Appearance = ResolvedAppearance | 'system';
+export type AppearanceMode = 'light' | 'dark' | 'system';
+export type AppearancePalette = 'standard' | 'catppuccin' | 'kanagawa';
 
-export function updateTheme(value: Appearance) {
+// For internal resolved state
+export type ResolvedAppearance = 'light' | 'dark' | 'catppuccin' | 'kanagawa';
+
+const PALETTES = ['catppuccin', 'kanagawa'] as const;
+
+export function updateTheme(mode: AppearanceMode, palette: AppearancePalette) {
     if (typeof window === 'undefined') {
         return;
     }
 
-    if (value === 'system') {
-        const mediaQueryList = window.matchMedia(
-            '(prefers-color-scheme: dark)',
-        );
-        const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
+    const doc = document.documentElement;
 
-        document.documentElement.classList.toggle(
-            'dark',
-            systemTheme === 'dark',
-        );
-    } else {
-        document.documentElement.classList.toggle('dark', value === 'dark');
+    // Remove existing palette classes
+    doc.classList.remove(...PALETTES.map((t) => `theme-${t}`));
+
+    // Apply palette class
+    if (palette !== 'standard') {
+        doc.classList.add(`theme-${palette}`);
     }
+
+    // Handle dark mode resolution
+    let resolvedIsDark = false;
+    if (mode === 'system') {
+        resolvedIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } else {
+        resolvedIsDark = mode === 'dark';
+    }
+
+    doc.classList.toggle('dark', resolvedIsDark);
 }
 
 const setCookie = (name: string, value: string, days = 365) => {
     if (typeof document === 'undefined') {
         return;
     }
-
     const maxAge = days * 24 * 60 * 60;
-
     document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
 };
 
-const mediaQuery = () => {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)');
+const getStoredAppearance = (): AppearanceMode => {
+    if (typeof window === 'undefined') return 'system';
+    const val = localStorage.getItem('appearance');
+    return (val === 'light' || val === 'dark' || val === 'system') ? val : 'system';
 };
 
-const getStoredAppearance = () => {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    return localStorage.getItem('appearance') as Appearance | null;
+const getStoredPalette = (): AppearancePalette => {
+    if (typeof window === 'undefined') return 'standard';
+    const val = localStorage.getItem('palette');
+    // Fallback for removed themes (nord, tokyonight)
+    if (val === 'nord' || val === 'tokyonight') return 'standard';
+    return (val === 'standard' || val === 'catppuccin' || val === 'kanagawa') ? val : 'standard';
 };
 
 const prefersDark = (): boolean => {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-
+    if (typeof window === 'undefined') return false;
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
 };
 
-const handleSystemThemeChange = () => {
-    const currentAppearance = getStoredAppearance();
+// Global state
+const appearance = ref<AppearanceMode>(getStoredAppearance());
+const palette = ref<AppearancePalette>(getStoredPalette());
 
-    updateTheme(currentAppearance || 'system');
-};
+if (typeof window !== 'undefined') {
+    // Initial update
+    updateTheme(appearance.value, palette.value);
 
-export function initializeTheme() {
-    if (typeof window === 'undefined') {
-        return;
-    }
+    // Watchers for immediate reactivity
+    watch([appearance, palette], ([newMode, newPalette]) => {
+        updateTheme(newMode, newPalette);
+    });
 
-    // Initialize theme from saved preference or default to system...
-    const savedAppearance = getStoredAppearance();
-    updateTheme(savedAppearance || 'system');
-
-    // Set up system theme change listener...
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    // System theme change listener
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (appearance.value === 'system') {
+            updateTheme('system', palette.value);
+        }
+    });
 }
 
-const appearance = ref<Appearance>('system');
-
 export function useAppearance() {
-    onMounted(() => {
-        const savedAppearance = localStorage.getItem(
-            'appearance',
-        ) as Appearance | null;
-
-        if (savedAppearance) {
-            appearance.value = savedAppearance;
-        }
-    });
-
     const resolvedAppearance = computed<ResolvedAppearance>(() => {
-        if (appearance.value === 'system') {
-            return prefersDark() ? 'dark' : 'light';
-        }
-
-        return appearance.value;
+        if (palette.value !== 'standard') return palette.value;
+        if (appearance.value === 'system') return prefersDark() ? 'dark' : 'light';
+        return appearance.value as'light' | 'dark';
     });
 
-    function updateAppearance(value: Appearance) {
-        appearance.value = value;
+    const isDark = computed(() => {
+        if (appearance.value === 'system') return prefersDark();
+        return appearance.value === 'dark';
+    });
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', value);
+    function updateAppearance(mode: AppearanceMode) {
+        appearance.value = mode;
+        localStorage.setItem('appearance', mode);
+        setCookie('appearance', mode);
+    }
 
-        // Store in cookie for SSR...
-        setCookie('appearance', value);
-
-        updateTheme(value);
+    function updatePalette(newPalette: AppearancePalette) {
+        palette.value = newPalette;
+        localStorage.setItem('palette', newPalette);
+        setCookie('palette', newPalette);
     }
 
     return {
         appearance,
+        palette,
         resolvedAppearance,
+        isDark,
         updateAppearance,
+        updatePalette,
     };
 }

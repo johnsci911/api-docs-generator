@@ -4,7 +4,6 @@ import { Check, CheckCircle2, ChevronLeft, Copy, Info, Play, Send } from 'lucide
 import prism from 'prismjs';
 import 'prismjs/components/prism-json';
 import 'prismjs/components/prism-bash';
-import 'prismjs/themes/prism-tomorrow.css';
 import { computed, ref } from 'vue';
 
 import { Badge } from '@/components/ui/badge';
@@ -118,6 +117,20 @@ const methodColors: Record<string, string> = {
     PATCH: 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/30',
     DELETE: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/30',
 };
+
+const displayParameters = computed(() => {
+    return props.endpoint.parameters.filter(param => {
+        // If it's a confirmation field, check if the base field exists and has confirmation logic
+        if (param.name.endsWith('_confirmation')) {
+            const baseFieldName = param.name.replace('_confirmation', '');
+            const baseField = props.endpoint.parameters.find(p => p.name === baseFieldName);
+            if (baseField && hasConfirmation(baseField)) {
+                return false; // Skip this parameter, it's handled by the base field's UI
+            }
+        }
+        return true;
+    });
+});
 
 const executeTest = async () => {
     testLoading.value = true;
@@ -284,23 +297,23 @@ const computedCurl = computed(() => {
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center gap-3">
-                        <Link :href="dashboard().url" class="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-zinc-800">
-                            <ChevronLeft class="h-5 w-5 text-gray-500" />
+                        <Link :href="dashboard().url" class="rounded-full p-2 hover:bg-muted">
+                            <ChevronLeft class="h-5 w-5 text-muted-foreground" />
                         </Link>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ endpoint.uri }}</h1>
-                        <Badge v-if="endpoint.is_deprecated" variant="outline" class="border-yellow-400 text-yellow-600 dark:border-yellow-500/50 dark:text-yellow-500">
+                        <h1 class="text-2xl font-bold text-foreground">{{ endpoint.uri }}</h1>
+                        <Badge v-if="endpoint.is_deprecated" variant="outline" class="border-amber-400 text-amber-600">
                             Deprecated
                         </Badge>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 pl-12">
-                        <Badge
+                        <span
                             v-for="method in endpoint.methods"
                             :key="method"
-                            :class="['border font-mono text-xs uppercase', methodColors[method]]"
+                            :class="['badge-method', `badge-method-${method.toLowerCase()}`]"
                         >
                             {{ method }}
-                        </Badge>
-                        <span class="text-sm text-gray-500 dark:text-zinc-400">{{ endpoint.controller }}@{{ endpoint.action }}</span>
+                        </span>
+                        <span class="text-sm text-muted-foreground">{{ endpoint.controller }}@{{ endpoint.action }}</span>
                     </div>
                 </div>
 
@@ -313,47 +326,47 @@ const computedCurl = computed(() => {
             </div>
 
             <!-- Content tabs -->
-            <div class="flex border-b border-gray-200 dark:border-zinc-800">
+            <div class="flex border-b border-border">
                 <button
                     @click="activeTab = 'details'"
-                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'details' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200']"
+                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'details' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground']"
                 >
                     Details
                 </button>
                 <button
                     @click="activeTab = 'parameters'"
-                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'parameters' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200']"
+                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'parameters' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground']"
                 >
                     Parameters
                 </button>
                 <button
                     @click="activeTab = 'responses'"
-                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'responses' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200']"
+                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'responses' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground']"
                 >
                     Responses
                 </button>
                 <button
                     @click="activeTab = 'testing'"
-                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'testing' ? 'border-b-2 border-emerald-500 text-emerald-600' : 'text-gray-500 hover:text-gray-700 dark:text-zinc-400 dark:hover:text-zinc-200']"
+                    :class="['px-6 py-3 text-sm font-medium transition-colors', activeTab === 'testing' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground']"
                 >
                     Live Testing
                 </button>
             </div>
 
-            <div class="flex-1 overflow-auto rounded-xl border border-gray-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <div class="flex-1 overflow-auto rounded-xl border border-border bg-card p-6">
                 <!-- Details Tab -->
                 <div v-if="activeTab === 'details'" class="space-y-6">
                     <div>
-                        <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Description</h3>
-                        <p class="text-gray-700 dark:text-zinc-300">
+                        <h3 class="docs-label mb-4">Description</h3>
+                        <p class="text-foreground/90">
                             {{ endpoint.description || 'No description provided for this endpoint.' }}
                         </p>
                     </div>
 
                     <div v-if="endpoint.middleware && endpoint.middleware.length > 0">
-                        <h3 class="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Middleware</h3>
+                        <h3 class="docs-label mb-4">Middleware</h3>
                         <div class="flex flex-wrap gap-2">
-                            <Badge v-for="mw in endpoint.middleware" :key="mw" variant="secondary" class="bg-gray-100 dark:bg-zinc-800">
+                            <Badge v-for="mw in endpoint.middleware" :key="mw" variant="secondary">
                                 {{ mw }}
                             </Badge>
                         </div>
@@ -364,28 +377,32 @@ const computedCurl = computed(() => {
                 <div v-if="activeTab === 'parameters'" class="space-y-6">
                     <div v-for="location in ['path', 'query', 'header', 'body']" :key="location">
                         <template v-if="endpoint.parameters.filter(p => p.location === location).length > 0">
-                            <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                            <h3 class="docs-label mb-4">
                                 <span class="capitalize">{{ location }}</span> Parameters
                             </h3>
-                            <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-zinc-800">
-                                <table class="w-full text-left text-sm">
-                                    <thead class="bg-gray-50 dark:bg-zinc-800/50">
+                            <div class="docs-table-wrapper">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-muted/30 border-b border-border/40">
                                         <tr>
-                                            <th class="px-4 py-3 font-semibold text-gray-900 dark:text-white">Name</th>
-                                            <th class="px-4 py-3 font-semibold text-gray-900 dark:text-white">Type</th>
-                                            <th class="px-4 py-3 font-semibold text-gray-900 dark:text-white">Required</th>
-                                            <th class="px-4 py-3 font-semibold text-gray-900 dark:text-white">Description</th>
+                                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Name</th>
+                                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Type</th>
+                                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Required</th>
+                                            <th class="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">Description</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200 dark:divide-zinc-800">
-                                        <tr v-for="param in endpoint.parameters.filter(p => p.location === location)" :key="param.id">
-                                            <td class="px-4 py-3 font-mono text-emerald-600 dark:text-emerald-400">{{ param.name }}</td>
-                                            <td class="px-4 py-3 text-gray-600 dark:text-zinc-400">{{ param.type }}</td>
-                                            <td class="px-4 py-3">
-                                                <Badge v-if="param.required" class="bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400">Required</Badge>
-                                                <Badge v-else variant="outline">Optional</Badge>
+                                    <tbody class="divide-y divide-border/20">
+                                        <tr v-for="param in endpoint.parameters.filter(p => p.location === location)" :key="param.id" class="group transition-colors hover:bg-muted/20">
+                                            <td class="px-4 py-3 font-mono text-xs">
+                                                <span class="rounded-md bg-emerald-500/10 px-2 py-1 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400 font-medium">
+                                                    {{ param.name }}
+                                                </span>
                                             </td>
-                                            <td class="px-4 py-3 text-gray-600 dark:text-zinc-400">{{ param.description }}</td>
+                                            <td class="px-4 py-3 text-xs text-muted-foreground italic">{{ param.type }}</td>
+                                            <td class="px-4 py-3">
+                                                <span v-if="param.required" class="badge-required">Required</span>
+                                                <span v-else class="badge-optional">Optional</span>
+                                            </td>
+                                            <td class="px-4 py-3 text-xs text-muted-foreground/90 leading-relaxed">{{ param.description }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -400,52 +417,49 @@ const computedCurl = computed(() => {
 
                 <!-- Responses Tab -->
                 <div v-if="activeTab === 'responses'" class="space-y-8">
-                    <div v-for="response in endpoint.responses" :key="response.id" class="overflow-hidden rounded-xl border border-gray-200 dark:border-zinc-800">
-                        <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50/50 px-6 py-4 dark:border-zinc-800 dark:bg-zinc-800/30">
+                    <div v-for="response in endpoint.responses" :key="response.id" class="overflow-hidden rounded-xl border border-border">
+                        <div class="flex items-center justify-between border-b border-border bg-muted/30 px-6 py-4">
                             <div class="flex items-center gap-4">
-                                <Badge
+                                <span
                                     :class="[
-                                        'px-3 py-1 text-sm font-bold',
-                                        response.status_code >= 400
-                                            ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'
-                                            : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
+                                        'badge-method',
+                                        response.status_code >= 400 ? 'badge-method-delete' : 'badge-method-get'
                                     ]"
-                                    variant="outline"
                                 >
                                     {{ response.status_code }}
-                                </Badge>
-                                <span class="font-semibold text-gray-900 dark:text-white">{{ response.description }}</span>
+                                </span>
+                                <span class="font-semibold text-foreground">{{ response.description }}</span>
                             </div>
                         </div>
 
-                        <div class="grid divide-y divide-gray-200 lg:grid-cols-2 lg:divide-x lg:divide-y-0 dark:divide-zinc-800">
+                        <div class="grid divide-y divide-border lg:grid-cols-2 lg:divide-x lg:divide-y-0 text-foreground">
                             <!-- Schema Column -->
                             <div class="p-6">
-                                <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">Response Schema</h4>
-                                <div v-if="response.schema" class="relative group">
-                                    <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono! text-xs text-zinc-300 leading-relaxed max-h-[400px]"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(response.schema, null, 2), prism.languages.json, 'json')"></code></pre>
+                                <h4 class="docs-label mb-4">Response Schema</h4>
+                                <div v-if="response.schema" class="docs-card">
+                                    <pre class="overflow-auto p-5 font-mono! text-xs leading-relaxed max-h-[400px]"><code class="language-json" v-html="prism.highlight(JSON.stringify(response.schema, null, 2), prism.languages.json, 'json')"></code></pre>
                                 </div>
-                                <div v-else class="flex flex-col items-center justify-center py-8 text-center bg-gray-50/30 rounded-lg border border-dashed border-gray-200 dark:bg-zinc-900/20 dark:border-zinc-800">
+                                <div v-else class="flex flex-col items-center justify-center py-8 text-center bg-muted/10 rounded-lg border border-dashed border-border/50">
                                     <Info class="mb-2 h-5 w-5 opacity-20" />
-                                    <p class="text-xs text-gray-400 dark:text-zinc-600">No schema defined</p>
+                                    <p class="text-xs text-muted-foreground/60">No schema defined</p>
                                 </div>
                             </div>
 
                             <!-- Example Column -->
                             <div class="p-6">
-                                <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">Response Example</h4>
-                                <div v-if="response.example" class="relative group">
-                                    <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono! text-xs text-emerald-400/90 leading-relaxed max-h-[400px]"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(response.example, null, 2), prism.languages.json, 'json')"></code></pre>
+                                <h4 class="docs-label mb-4">Response Example</h4>
+                                <div v-if="response.example" class="docs-card">
+                                    <pre class="overflow-auto p-5 font-mono! text-xs leading-relaxed max-h-[400px]"><code class="language-json" v-html="prism.highlight(JSON.stringify(response.example, null, 2), prism.languages.json, 'json')"></code></pre>
                                 </div>
-                                <div v-else class="flex flex-col items-center justify-center py-8 text-center bg-gray-50/30 rounded-lg border border-dashed border-gray-200 dark:bg-zinc-900/20 dark:border-zinc-800">
+                                <div v-else class="flex flex-col items-center justify-center py-8 text-center bg-muted/20 rounded-lg border border-dashed border-border">
                                     <Play class="mb-2 h-5 w-5 opacity-20" />
-                                    <p class="text-xs text-gray-400 dark:text-zinc-600">No example provided</p>
+                                    <p class="text-xs text-muted-foreground/60">No example provided</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="endpoint.responses.length === 0" class="flex flex-col items-center justify-center py-20 text-gray-500 border border-dashed border-gray-200 rounded-xl dark:border-zinc-800">
+                    <div v-if="endpoint.responses.length === 0" class="flex flex-col items-center justify-center py-20 text-muted-foreground border border-dashed border-border rounded-xl">
                         <CheckCircle2 class="mb-4 h-12 w-12 opacity-10" />
                         <p class="font-medium">No response documentation available for this endpoint.</p>
                     </div>
@@ -453,64 +467,76 @@ const computedCurl = computed(() => {
 
                 <!-- Testing Tab -->
                 <div v-if="activeTab === 'testing'" class="grid gap-8 lg:grid-cols-2">
+                    <!-- Request Config -->
                     <div class="space-y-6">
-                        <div class="flex items-center gap-2 px-1">
+                        <div class="flex items-center gap-2 rounded-lg bg-muted/20 px-4 py-2 border border-border/30">
                             <Send class="h-4 w-4 text-emerald-500" />
-                            <h3 class="text-sm font-semibold tracking-wide text-gray-900 dark:text-zinc-100">Request Configuration</h3>
+                            <h3 class="text-sm font-semibold tracking-wide text-foreground">Request Configuration</h3>
                         </div>
-                        <div class="space-y-4">
-                            <div v-for="param in endpoint.parameters" :key="param.id" class="space-y-4">
-                                <div class="space-y-1.5">
-                                    <label class="flex text-sm font-medium text-gray-700 dark:text-zinc-300">
+
+                        <div class="rounded-xl border border-border/40 bg-muted/10 p-5 space-y-6 shadow-sm">
+                            <div v-for="param in displayParameters" :key="param.id" class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="docs-label">
                                         {{ param.name }}
-                                        <span v-if="param.required" class="ml-1 text-red-500">*</span>
+                                        <span v-if="param.required" class="ml-1 text-red-500 font-bold">*</span>
                                     </label>
                                     <template v-if="param.type === 'file' || param.type === 'image'">
                                         <input
                                             type="file"
                                             @change="(e: any) => testPayload[param.name] = e.target.files[0]"
-                                            class="flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-800"
+                                            class="docs-field file:border-0 file:bg-transparent file:text-sm file:font-medium"
                                         />
                                     </template>
                                     <Input
                                         v-else
                                         v-model="testPayload[param.name]"
                                         :type="isPasswordField(param.name) ? 'password' : 'text'"
-                                        :placeholder="param.description"
-                                        class="bg-white dark:bg-zinc-800"
+                                        :placeholder="param.description || 'Enter value...'"
+                                        class="docs-field"
                                     />
+                                    <p v-if="param.description" class="text-[11px] text-muted-foreground/50 px-1 leading-relaxed">
+                                        {{ param.description }}
+                                    </p>
                                 </div>
 
                                 <!-- Confirmation field if needed -->
-                                <div v-if="hasConfirmation(param)" class="space-y-1.5">
-                                    <label class="flex text-sm font-medium text-gray-700 dark:text-zinc-300">
+                                <div v-if="hasConfirmation(param)" class="space-y-2 border-l-2 border-border/30 ml-2 pl-4 py-1">
+                                    <label class="docs-label">
                                         Confirm {{ param.name }}
-                                        <span v-if="param.required" class="ml-1 text-red-500">*</span>
+                                        <span v-if="param.required" class="ml-1 text-red-500 font-bold">*</span>
                                     </label>
                                     <Input
                                         v-model="testPayload[`${param.name}_confirmation`]"
                                         :type="isPasswordField(param.name) ? 'password' : 'text'"
                                         :placeholder="`Confirm ${param.name.toLowerCase()}`"
-                                        class="bg-white dark:bg-zinc-800"
+                                        class="docs-field"
                                     />
                                 </div>
+                            </div>
+
+                            <div v-if="displayParameters.length === 0" class="py-12 text-center text-muted-foreground/40">
+                                <Info class="mx-auto mb-2 h-8 w-8 opacity-10" />
+                                <p class="text-xs">No parameters required for this request.</p>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Results Section -->
                     <div class="space-y-6">
-                        <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center justify-between rounded-lg bg-muted/30 px-4 py-2 border border-border/40 shadow-sm">
                             <div class="flex items-center gap-2">
                                 <Play class="h-4 w-4 text-emerald-500" />
-                                <h3 class="text-sm font-semibold tracking-wide text-gray-900 dark:text-zinc-100">Execution & Results</h3>
+                                <h3 class="text-sm font-semibold tracking-wide text-foreground">Execution & Results</h3>
                             </div>
                             <Button
                                 @click="executeTest"
                                 :disabled="testLoading"
                                 size="sm"
-                                class="bg-emerald-600 font-medium text-black shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-500/30 active:scale-95 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+                                class="bg-emerald-600 font-semibold shadow-lg shadow-emerald-500/10 transition-all hover:bg-emerald-700 hover:shadow-emerald-500/20 active:scale-95 dark:bg-emerald-500 dark:hover:bg-emerald-400"
                             >
-                                <Send class="mr-2 h-4 w-4" />
+                                <Send v-if="!testLoading" class="mr-2 h-3.5 w-3.5" />
+                                <div v-else class="mr-2 h-3.5 w-3.5 animate-spin rounded-full border-2 border-black border-t-transparent"></div>
                                 {{ testLoading ? 'Executing...' : 'Execute Request' }}
                             </Button>
                         </div>
@@ -518,35 +544,38 @@ const computedCurl = computed(() => {
                         <!-- Live cURL -->
                         <div class="group/curl space-y-3">
                             <div class="flex items-center justify-between px-1">
-                                <h4 class="text-xs font-bold tracking-wider text-gray-400 dark:text-zinc-500">Live cURL Command</h4>
+                                <h4 class="docs-label">Live cURL Command</h4>
                                 <button
                                     @click="copyToClipboard(computedCurl)"
-                                    class="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-gray-400 transition-all hover:bg-emerald-500/10 hover:text-emerald-500 dark:text-zinc-500 dark:hover:text-emerald-400"
+                                    class="flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-all hover:bg-primary/10 hover:text-primary"
                                     title="Copy to clipboard"
                                 >
                                     <template v-if="copied">
-                                        <Check class="h-3.5 w-3.5" />
+                                        <Check class="h-3 w-3" />
                                         <span>Copied!</span>
                                     </template>
                                     <template v-else>
-                                        <Copy class="h-3.5 w-3.5" />
+                                        <Copy class="h-3 w-3" />
                                         <span>Copy</span>
                                     </template>
                                 </button>
                             </div>
-                            <div class="relative">
-                                <pre class="overflow-auto rounded-xl border border-gray-200 bg-zinc-950 p-5 font-mono! text-[13px] text-emerald-400/80 leading-relaxed max-h-[220px] shadow-inner dark:border-zinc-800"><code class="language-bash font-mono!" v-html="prism.highlight(computedCurl, prism.languages.bash || prism.languages.javascript, 'bash')"></code></pre>
+                            <div class="docs-card">
+                                <pre class="overflow-auto p-6 font-mono! text-[13px] leading-relaxed max-h-[220px]"><code class="language-bash" v-html="prism.highlight(computedCurl, prism.languages.bash || prism.languages.javascript, 'bash')"></code></pre>
                             </div>
                         </div>
 
                         <div class="space-y-3">
-                            <h4 class="px-1 text-xs font-bold tracking-wider text-gray-400 dark:text-zinc-500">Response Analysis</h4>
-                            <div v-if="testResponse" class="relative">
-                                <pre class="overflow-auto rounded-xl border border-gray-200 bg-zinc-950 p-5 font-mono! text-[13px] text-zinc-300 leading-relaxed max-h-[450px] shadow-2xl dark:border-zinc-800"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(testResponse, null, 2), prism.languages.json, 'json')"></code></pre>
+                            <h4 class="docs-label px-1">Response Analysis</h4>
+                            <div v-if="testResponse" class="docs-card">
+                                <pre class="overflow-auto p-6 font-mono! text-[13px] leading-relaxed max-h-[450px]"><code class="language-json" v-html="prism.highlight(JSON.stringify(testResponse, null, 2), prism.languages.json, 'json')"></code></pre>
                             </div>
-                            <div v-else class="flex h-[240px] flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50/50 text-center text-gray-400 transition-colors dark:border-zinc-800 dark:bg-zinc-900/40">
-                                <Play class="mb-4 h-12 w-12 opacity-10" />
-                                <p class="text-sm font-medium opacity-60">Ready to execute? Hit the button to see results.</p>
+                            <div v-else class="flex h-[280px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-border/60 bg-muted/10 text-center text-muted-foreground transition-all hover:bg-muted/20 hover:border-border/80">
+                                <div class="bg-background/40 rounded-full p-6 mb-4 shadow-sm border border-border/30">
+                                    <Play class="h-10 w-10 opacity-40" />
+                                </div>
+                                <p class="text-sm font-bold tracking-tight text-foreground/80">Ready to execute?</p>
+                                <p class="text-xs font-medium text-muted-foreground/80 max-w-[200px] mt-1 mx-auto">Fill in the parameters and hit the button to see the results.</p>
                             </div>
                         </div>
                     </div>
