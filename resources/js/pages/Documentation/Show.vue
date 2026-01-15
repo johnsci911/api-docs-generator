@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { CheckCircle2, ChevronLeft, Info, Play, Save, Send } from 'lucide-vue-next';
+import { CheckCircle2, ChevronLeft, Info, Play, Send } from 'lucide-vue-next';
+import prism from 'prismjs';
+import 'prismjs/components/prism-json';
+import 'prismjs/themes/prism-tomorrow.css';
 import { ref } from 'vue';
 
 import { Badge } from '@/components/ui/badge';
@@ -324,7 +327,7 @@ const executeTest = async () => {
                             <div class="p-6">
                                 <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">Response Schema</h4>
                                 <div v-if="response.schema" class="relative group">
-                                    <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono text-xs text-zinc-300 leading-relaxed max-h-[400px]"><code>{{ JSON.stringify(response.schema, null, 2) }}</code></pre>
+                                    <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono! text-xs text-zinc-300 leading-relaxed max-h-[400px]"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(response.schema, null, 2), prism.languages.json, 'json')"></code></pre>
                                 </div>
                                 <div v-else class="flex flex-col items-center justify-center py-8 text-center bg-gray-50/30 rounded-lg border border-dashed border-gray-200 dark:bg-zinc-900/20 dark:border-zinc-800">
                                     <Info class="mb-2 h-5 w-5 opacity-20" />
@@ -336,7 +339,7 @@ const executeTest = async () => {
                             <div class="p-6">
                                 <h4 class="mb-4 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">Response Example</h4>
                                 <div v-if="response.example" class="relative group">
-                                    <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono text-xs text-emerald-400/90 leading-relaxed max-h-[400px]"><code>{{ JSON.stringify(response.example, null, 2) }}</code></pre>
+                                    <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono! text-xs text-emerald-400/90 leading-relaxed max-h-[400px]"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(response.example, null, 2), prism.languages.json, 'json')"></code></pre>
                                 </div>
                                 <div v-else class="flex flex-col items-center justify-center py-8 text-center bg-gray-50/30 rounded-lg border border-dashed border-gray-200 dark:bg-zinc-900/20 dark:border-zinc-800">
                                     <Play class="mb-2 h-5 w-5 opacity-20" />
@@ -406,8 +409,8 @@ const executeTest = async () => {
 
                     <div class="space-y-4">
                         <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400">Response</h3>
-                        <div v-if="testResponse" class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/50">
-                            <pre class="overflow-auto font-mono text-xs text-gray-800 dark:text-zinc-300"><code>{{ JSON.stringify(testResponse, null, 2) }}</code></pre>
+                        <div v-if="testResponse" class="relative group">
+                            <pre class="overflow-auto rounded-lg bg-zinc-950 p-4 font-mono! text-xs text-emerald-400/90 leading-relaxed max-h-[500px] border border-zinc-800"><code class="language-json font-mono!" v-html="prism.highlight(JSON.stringify(testResponse, null, 2), prism.languages.json, 'json')"></code></pre>
                         </div>
                         <div v-else class="flex h-[300px] flex-col items-center justify-center px-8 text-center rounded-lg border border-dashed border-gray-300 text-gray-400 dark:border-zinc-700">
                             <Play class="mb-4 h-12 w-12 opacity-20" />
@@ -419,3 +422,6 @@ const executeTest = async () => {
         </div>
     </AppLayout>
 </template>
+
+
+
