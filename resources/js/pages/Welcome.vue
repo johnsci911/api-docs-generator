@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import { Terminal } from 'lucide-vue-next';
+import { Head } from '@inertiajs/vue3';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
 
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -48,7 +48,7 @@ Authorization: Bearer ...</code></pre>
             <!-- Logo and Title -->
             <div class="mb-10 text-center">
                 <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 shadow-lg shadow-emerald-500/10 backdrop-blur-sm">
-                    <Terminal class="h-8 w-8 text-emerald-400" />
+                    <AppLogoIcon className="h-8 w-8 text-emerald-400" />
                 </div>
                 <h1 class="mb-2 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">REST API <br> Document Generator</h1>
             </div>

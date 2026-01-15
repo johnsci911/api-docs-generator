@@ -63,7 +63,7 @@ const scrollToGroup = (groupName: string) => {
 <template>
     <template v-if="groups.length > 0">
         <SidebarGroup class="px-2 py-4 border-b border-sidebar-border/50">
-            <SidebarGroupLabel class="px-2 text-[10px] font-bold uppercase tracking-[0.2em] opacity-50">API Groups</SidebarGroupLabel>
+            <SidebarGroupLabel class="px-2 text-[10px] font-bold uppercase tracking-[0.2em] opacity-50 group-data-[collapsible=icon]:hidden">API Groups</SidebarGroupLabel>
             <SidebarMenu class="mt-2">
                 <SidebarMenuItem v-for="group in groups" :key="group">
                     <SidebarMenuButton 
@@ -72,7 +72,7 @@ const scrollToGroup = (groupName: string) => {
                     >
                         <div class="flex flex-1 items-center justify-between">
                             <span class="truncate">{{ group }}</span>
-                            <Badge variant="outline" class="ml-2 h-4 px-1 py-0 text-[9px] font-bold border-none bg-sidebar-accent/30 text-sidebar-foreground/70">
+                            <Badge variant="outline" class="ml-2 h-4 px-1 py-0 text-[9px] font-bold border-none bg-sidebar-accent/30 text-sidebar-foreground/70 group-data-[collapsible=icon]:hidden">
                                 {{ groupedEndpoints[group].length }}
                             </Badge>
                         </div>
@@ -81,7 +81,7 @@ const scrollToGroup = (groupName: string) => {
             </SidebarMenu>
         </SidebarGroup>
 
-        <SidebarGroup v-if="stats" class="px-2 py-4">
+        <SidebarGroup v-if="stats" class="px-2 py-4 group-data-[collapsible=icon]:hidden">
             <SidebarGroupLabel class="px-2 text-[10px] font-bold uppercase tracking-[0.2em] opacity-50">Statistics</SidebarGroupLabel>
             <SidebarMenu class="mt-2 px-2 space-y-2">
                 <template v-for="(count, methodName) in stats" :key="methodName">
