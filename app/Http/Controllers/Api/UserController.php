@@ -203,8 +203,12 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function show(string $user): JsonResponse
+    public function show(Request $request, string $user): JsonResponse
     {
+        $request->merge(['user' => $user])->validate([
+            'user' => ['required', 'integer', 'min:1'],
+        ]);
+
         if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',
@@ -298,8 +302,12 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function destroy(string $user): JsonResponse
+    public function destroy(Request $request, string $user): JsonResponse
     {
+        $request->merge(['user' => $user])->validate([
+            'user' => ['required', 'integer', 'min:1'],
+        ]);
+
         if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',
@@ -341,7 +349,8 @@ class UserController extends Controller
      */
     public function uploadAvatar(Request $request, string $user): JsonResponse
     {
-        $request->validate([
+        $request->merge(['user' => $user])->validate([
+            'user' => ['required', 'integer', 'min:1'],
             'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:2048'],
         ]);
 
@@ -377,8 +386,12 @@ class UserController extends Controller
      *   "message": "User not found"
      * }
      */
-    public function deleteAvatar(string $user): JsonResponse
+    public function deleteAvatar(Request $request, string $user): JsonResponse
     {
+        $request->merge(['user' => $user])->validate([
+            'user' => ['required', 'integer', 'min:1'],
+        ]);
+
         if ($user > 3) {
             return response()->json([
                 'message' => 'User not found',

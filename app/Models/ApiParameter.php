@@ -23,11 +23,21 @@ class ApiParameter extends Model
         'is_required' => 'boolean',
     ];
 
+    protected $appends = ['required'];
+
     /**
      * Get the endpoint for this parameter.
      */
     public function endpoint(): BelongsTo
     {
         return $this->belongsTo(ApiEndpoint::class, 'api_endpoint_id');
+    }
+
+    /**
+     * Accessor for 'required' to maintain compatibility with frontend.
+     */
+    public function getRequiredAttribute(): bool
+    {
+        return $this->is_required;
     }
 }

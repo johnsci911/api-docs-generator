@@ -20,6 +20,16 @@ class UpdateUserRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'user' => $this->route('user'),
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -29,6 +39,7 @@ class UpdateUserRequest extends FormRequest
         $userId = $this->route('user');
 
         return [
+            'user' => ['required', 'integer', 'min:1'],
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,'.$userId],
             'role' => ['sometimes', 'string', 'in:admin,user,editor'],
