@@ -92,6 +92,12 @@ class ReflectionAnalyzer
 
             $originalName = $param->getName();
             $name = $originalName;
+            
+            // Skip if this parameter is already a path parameter
+            if (in_array($name, $pathParams)) {
+                continue;
+            }
+            
             $location = 'body';
 
             if ($uri && (in_array($name, $pathParams) || (count($pathParams) === 1 && $name === 'id'))) {
@@ -121,35 +127,64 @@ class ReflectionAnalyzer
             $coveredNames[$originalName] = $name;
         }
 
-        // Add parameters from @param tags that are not in the signature
+        // Add parameters from specialized tags (@queryParam, @bodyParam, @urlParam) or @param
         if ($docComment) {
-            // Regex to capture: @param [type] $[name] [description]
-            // Handles leading * and case-insensitive @param
-            // Supports complex types like string|null or App\Models\User
-            preg_match_all('/@param\s+([^\s\$]+)\s+\$(\w+)(?:[\s\t]+(.*))?/', $docComment, $matches, PREG_SET_ORDER);
-            foreach ($matches as $match) {
-                $type = $match[1];
-                $name = $match[2];
-                $description = isset($match[3]) ? trim($match[3]) : '';
+            $tags = ['queryParam', 'bodyParam', 'urlParam', 'param'];
+            foreach ($tags as $tag) {
+                // Improved regex to handle: @tag [name/type] [type/name] [description]
+                preg_match_all('/@' . $tag . '\s+([^\s\$]+)?\s*(?:\$)?(\w+)?(?:[\s\t]+(.*))?/', $docComment, $matches, PREG_SET_ORDER);
 
-                // Check if this parameter name (or its original signature name) is already covered
-                if (isset($parameters[$name]) || isset($coveredNames[$name])) {
-                    continue;
-                }
+                foreach ($matches as $match) {
+                    $first = !empty($match[1]) ? $match[1] : null;
+                    $second = !empty($match[2]) ? $match[2] : null;
+                    $description = isset($match[3]) ? trim($match[3]) : '';
 
-                if (!in_array($type, ['Request', 'FormRequest'])) {
-                    // Normalize file types
-                    if (in_array(strtolower($type), ['file', 'image', 'uploadedfile'])) {
-                        $type = 'file';
+                    if (!$first && !$second) continue;
+
+                    // Heuristic to determine which is name and which is type
+                    $knownTypes = ['string', 'int', 'integer', 'float', 'boolean', 'bool', 'array', 'object', 'file', 'image', 'number'];
+                    
+                    if (!$second) {
+                        $name = $first;
+                        $type = 'string';
+                    } elseif (in_array(strtolower($first), $knownTypes)) {
+                        // type name description
+                        $type = $first;
+                        $name = $second;
+                    } else {
+                        // name type description
+                        $name = $first;
+                        $type = $second;
                     }
 
-                    // Check if description contains "required" (flexible check)
-                    $isRequired = (bool) preg_match('/\brequired\b/i', $description);
+                    // Check if description or type contains "required"
+                    $isRequired = (bool) preg_match('/\brequired\b/i', $description . ' ' . $type);
+
+                    // Clean "required" from type/description
+                    $type = trim(preg_replace('/\brequired\b/i', '', $type)) ?: 'string';
+
+                    // Normalize types
+                    if (in_array(strtolower($type), ['integer', 'int'])) $type = 'integer';
+                    if (in_array(strtolower($type), ['float', 'double'])) $type = 'number';
+                    if (in_array(strtolower($type), ['bool', 'boolean'])) $type = 'boolean';
+                    if (in_array(strtolower($type), ['file', 'image', 'uploadedfile'])) $type = 'file';
+
+                    // Skip if already covered by method signature (or previous tag)
+                    if (isset($parameters[$name]) && $tag === 'param') {
+                        continue;
+                    }
+
+                    $location = match ($tag) {
+                        'queryParam' => 'query',
+                        'bodyParam' => 'body',
+                        'urlParam' => 'path',
+                        default => (in_array($name, $pathParams) ? 'path' : 'body'),
+                    };
 
                     $parameters[$name] = [
                         'name' => $name,
                         'type' => $type,
-                        'location' => in_array($name, $pathParams) ? 'path' : 'body',
+                        'location' => $location,
                         'is_required' => $isRequired,
                         'default_value' => null,
                         'description' => $description ?: "The {$name} parameter",

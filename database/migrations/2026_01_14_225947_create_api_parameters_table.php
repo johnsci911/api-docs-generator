@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('type', 50);
             $table->enum('location', ['query', 'path', 'header', 'cookie', 'body']);
-            $table->boolean('required')->default(false);
+            $table->boolean('is_required')->default(false);
             $table->text('description')->nullable();
             $table->string('default_value')->nullable();
             $table->json('validation_rules')->nullable();

@@ -12,7 +12,7 @@ class ApiParameter extends Model
         'name',
         'type',
         'location',
-        'required',
+        'is_required',
         'description',
         'default_value',
         'validation_rules',
