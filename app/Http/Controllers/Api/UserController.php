@@ -35,18 +35,29 @@ class UserController extends Controller
      *       "name": "John Doe",
      *       "email": "john@example.com",
      *       "role": "admin",
-     *       "bio": "Senior developer",
+     *       "bio": "Senior developer and project lead.",
      *       "avatar": "https://api.example.com/storage/avatars/1.jpg",
      *       "verified": true,
      *       "posts_count": 42,
      *       "created_at": "2024-01-15T08:00:00Z"
+     *     },
+     *     {
+     *       "id": 2,
+     *       "name": "Jane Smith",
+     *       "email": "jane@example.com",
+     *       "role": "editor",
+     *       "bio": "Content specialist with a focus on technical writing.",
+     *       "avatar": null,
+     *       "verified": true,
+     *       "posts_count": 12,
+     *       "created_at": "2024-01-16T10:30:00Z"
      *     }
      *   ],
      *   "meta": {
      *     "current_page": 1,
-     *     "last_page": 5,
+     *     "last_page": 1,
      *     "per_page": 15,
-     *     "total": 72,
+     *     "total": 2,
      *     "search": null,
      *     "role": null
      *   }
@@ -178,11 +189,12 @@ class UserController extends Controller
      *     "name": "John Doe",
      *     "email": "john@example.com",
      *     "role": "admin",
-     *     "bio": "Senior developer with 10 years experience",
+     *     "bio": "Senior developer with 10 years experience in full-stack development. Expert in Laravel and Vue.js.",
      *     "avatar": "https://api.example.com/storage/avatars/1.jpg",
      *     "verified": true,
      *     "posts_count": 42,
      *     "comments_count": 156,
+     *     "badges": ["top-contributor", "laravel-expert"],
      *     "created_at": "2024-01-01T08:00:00Z",
      *     "updated_at": "2024-01-15T08:00:00Z"
      *   }
@@ -233,9 +245,9 @@ class UserController extends Controller
      *   "data": {
      *     "id": 1,
      *     "name": "John Updated",
-     *     "email": "john@example.com",
-     *     "role": "admin",
-     *     "bio": "Updated bio text",
+     *     "email": "john.updated@example.com",
+     *     "role": "editor",
+     *     "bio": "Updated bio text with new professional details.",
      *     "avatar": "https://api.example.com/storage/avatars/1.jpg",
      *     "verified": true,
      *     "created_at": "2024-01-01T08:00:00Z",

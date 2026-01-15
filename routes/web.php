@@ -16,4 +16,8 @@ Route::get('dashboard', [DocumentationController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('endpoints/{endpoint}', [DocumentationController::class, 'show'])
+    ->middleware(['auth', 'verified'])
+    ->name('endpoints.show');
+
 require __DIR__.'/settings.php';

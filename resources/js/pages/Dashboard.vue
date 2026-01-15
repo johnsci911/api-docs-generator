@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { Search, Filter, ChevronRight } from 'lucide-vue-next';
 import { ref, computed, watch } from 'vue';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { show } from '@/actions/App/Http/Controllers/DocumentationController';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -185,10 +186,11 @@ const groupedEndpoints = computed(() => {
                     <div v-for="(groupEndpoints, groupName) in groupedEndpoints" :key="groupName" class="space-y-3">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ groupName }}</h2>
                         <div class="space-y-2">
-                            <div
+                            <Link
                                 v-for="endpoint in groupEndpoints"
                                 :key="endpoint.id"
-                                class="group flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-gray-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-zinc-700"
+                                :href="show.url(endpoint.id)"
+                                class="group flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-emerald-500/50"
                             >
                                 <div class="flex gap-1">
                                     <Badge
@@ -213,8 +215,8 @@ const groupedEndpoints = computed(() => {
                                         {{ endpoint.controller }}@{{ endpoint.action }}
                                     </p>
                                 </div>
-                                <ChevronRight class="h-5 w-5 text-gray-400 transition-colors group-hover:text-gray-600 dark:text-zinc-600 dark:group-hover:text-zinc-400" />
-                            </div>
+                                <ChevronRight class="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-emerald-500 dark:text-zinc-600 dark:group-hover:text-emerald-400" />
+                            </Link>
                         </div>
                     </div>
                 </template>

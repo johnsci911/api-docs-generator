@@ -22,6 +22,19 @@ export default defineConfig({
                     includeAbsolute: false,
                 },
             },
+            babel: {
+                plugins: [
+                    [
+                        'prismjs',
+                        {
+                            languages: ['json', 'bash', 'php'],
+                            plugins: ['line-numbers', 'copy-to-clipboard'],
+                            theme: 'okaidia',
+                            css: true,
+                        },
+                    ],
+                ],
+            },
         }),
     ],
 });

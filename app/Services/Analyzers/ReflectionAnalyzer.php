@@ -5,6 +5,7 @@ namespace App\Services\Analyzers;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionParameter;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Uses PHP Reflection to analyze controller methods
@@ -234,56 +235,179 @@ class ReflectionAnalyzer
     protected function inferResponses(ReflectionMethod $method): array
     {
         $responses = [];
-
-        // Default success response
-        $responses[] = [
-            'status_code' => 200,
-            'description' => 'Successful response',
-            'is_error' => false,
-        ];
-
-        // Check for common error responses in doc comments
         $docComment = $method->getDocComment();
-        if ($docComment) {
-            if (str_contains($docComment, '404') || str_contains($docComment, 'Not Found')) {
-                $responses[] = [
-                    'status_code' => 404,
-                    'description' => 'Resource not found',
-                    'is_error' => true,
-                    'example' => [
-                        'error' => 'Resource not found',
-                        'message' => 'The requested resource was not found on this server.'
-                    ]
-                ];
-            }
 
-            if (str_contains($docComment, '401') || str_contains($docComment, 'Unauthorized')) {
-                $responses[] = [
-                    'status_code' => 401,
-                    'description' => 'Unauthorized',
-                    'is_error' => true,
-                    'example' => [
-                        'message' => 'Unauthenticated.'
-                    ]
-                ];
-            }
+        if (!$docComment) {
+            // Default success response if no doc comment
+            return [[
+                'status_code' => 200,
+                'description' => 'Successful response',
+                'is_error' => false,
+            ]];
+        }
 
-            if (str_contains($docComment, '422') || str_contains($docComment, 'Validation')) {
-                $responses[] = [
-                    'status_code' => 422,
-                    'description' => 'Validation error',
-                    'is_error' => true,
-                    'example' => [
-                        'message' => 'The given data was invalid.',
-                        'errors' => [
-                            'field_name' => ['The field_name field is required.']
-                        ]
-                    ]
-                ];
+        // Clean the docblock: remove leading * and whitespace
+        $cleanDocComment = preg_replace('/^\s*\**\s?/m', '', $docComment);
+        $cleanDocComment = trim($cleanDocComment, "/* \t\n\r");
+
+        // Parse @schema [status_code] {json_body}
+        $explicitSchemas = [];
+        // Group 1: Status Code, Group 2: JSON Body (recursive)
+        preg_match_all('/@schema\s+(\d+)?\s*({(?:(?>[^{}]+)|(?2))*})/m', $cleanDocComment, $schemaMatches, PREG_SET_ORDER);
+        foreach ($schemaMatches as $match) {
+            $status = (int) ($match[1] ?: 200);
+            $json = trim($match[2]);
+            try {
+                $explicitSchemas[$status] = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                Log::warning("Invalid JSON in @schema for method {$method->getName()}: " . $e->getMessage());
             }
         }
 
-        return $responses;
+        // Regular expression to match @response [status_code] [description] {json_body}
+        // Group 1: Status Code, Group 2: Description, Group 3: JSON Body (recursive)
+        preg_match_all('/@response\s+(\d+)?\s*(?:([^{]++)\s*)?({(?:(?>[^{}]+)|(?3))*})/m', $cleanDocComment, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $status = (int) ($match[1] ?: 200);
+            $description = !empty($match[2]) ? trim($match[2]) : null;
+            $json = trim($match[3]);
+            $example = null;
+
+            try {
+                $example = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                Log::warning("Invalid JSON in @response for method {$method->getName()} (Status {$status}): " . $e->getMessage(), [
+                    'json' => $json
+                ]);
+            }
+
+            $responses[$status] = [
+                'status_code' => $status,
+                'description' => $description ?: $this->getResponseDescription($status),
+                'is_error' => $status >= 400,
+                'schema' => $explicitSchemas[$status] ?? $this->inferSchema($example),
+                'example' => $example,
+            ];
+        }
+
+        // Check for common error responses if not explicitly defined by @response
+        if (!isset($responses[404]) && (str_contains($docComment, '404') || str_contains($docComment, 'Not Found'))) {
+            $responses[404] = [
+                'status_code' => 404,
+                'description' => 'Resource not found',
+                'is_error' => true,
+                'schema' => [
+                    'error' => 'string',
+                    'message' => 'string'
+                ],
+                'example' => [
+                    'error' => 'Resource not found',
+                    'message' => 'The requested resource was not found on this server.'
+                ]
+            ];
+        }
+
+        if (!isset($responses[401]) && (str_contains($docComment, '401') || str_contains($docComment, 'Unauthorized'))) {
+            $responses[401] = [
+                'status_code' => 401,
+                'description' => 'Unauthorized',
+                'is_error' => true,
+                'schema' => [
+                    'message' => 'string'
+                ],
+                'example' => [
+                    'message' => 'Unauthenticated.'
+                ]
+            ];
+        }
+
+        if (!isset($responses[422]) && (str_contains($docComment, '422') || str_contains($docComment, 'Validation'))) {
+            $responses[422] = [
+                'status_code' => 422,
+                'description' => 'Validation error',
+                'is_error' => true,
+                'schema' => [
+                    'message' => 'string',
+                    'errors' => 'array'
+                ],
+                'example' => [
+                    'message' => 'The given data was invalid.',
+                    'errors' => [
+                        'field_name' => ['The field_name field is required.']
+                    ]
+                ]
+            ];
+        }
+
+        // If no 200/201 was found via @response, add a default 200
+        if (!isset($responses[200]) && !isset($responses[201])) {
+            $responses[200] = [
+                'status_code' => 200,
+                'description' => 'Successful response',
+                'is_error' => false,
+            ];
+        }
+
+        return array_values($responses);
+    }
+
+    /**
+     * Infer a basic schema from a data example
+     */
+    protected function inferSchema(mixed $data): mixed
+    {
+        if ($data === null) {
+            return null;
+        }
+
+        if (is_array($data)) {
+            if (empty($data)) {
+                return [];
+            }
+
+            // Check if it's an associative array (object)
+            if (array_keys($data) !== range(0, count($data) - 1)) {
+                $schema = [];
+                foreach ($data as $key => $value) {
+                    $schema[$key] = $this->inferSchema($value);
+                }
+                return $schema;
+            }
+
+            // It's an indexed array - show the type of the first element
+            return [$this->inferSchema($data[0])];
+        }
+
+        $type = gettype($data);
+
+        // Normalize types
+        return match ($type) {
+            'integer' => 'int',
+            'double' => 'float',
+            'boolean' => 'bool',
+            'NULL' => 'null',
+            default => $type,
+        };
+    }
+
+    /**
+     * Get a default description for common status codes
+     */
+    protected function getResponseDescription(int $status): string
+    {
+        return match ($status) {
+            200 => 'Successful response',
+            201 => 'Created successfully',
+            204 => 'No content',
+            400 => 'Bad request',
+            401 => 'Unauthorized',
+            403 => 'Forbidden',
+            404 => 'Not found',
+            422 => 'Validation error',
+            500 => 'Server error',
+            default => 'API response',
+        };
     }
 
     /**
